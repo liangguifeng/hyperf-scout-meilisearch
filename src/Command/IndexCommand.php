@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Laravel\Scout\Console;
+namespace Hyperf\Scout\Command;
 
 use Exception;
 use Hyperf\Command\Command;
