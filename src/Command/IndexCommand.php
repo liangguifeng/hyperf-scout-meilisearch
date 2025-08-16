@@ -21,7 +21,7 @@ class IndexCommand extends Command
     /**
      * The name and signature of the console command.
      */
-    protected ?string $signature = 'scout:index
+    protected ?string $signature = 'meilisearch:index
             {name : The name of the index}
             {--k|key= : The name of the primary key}';
 
