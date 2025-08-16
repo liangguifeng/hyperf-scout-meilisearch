@@ -1,3 +1,7 @@
+English | [中文](./README-CN.md)
+
+[TOC]
+
 # Introduction
 This extension package provides Meilisearch integration similar to Laravel Scout for the Hyperf framework, supporting document indexing, searching, batch updates, and batch synchronization of index settings, etc.
 
