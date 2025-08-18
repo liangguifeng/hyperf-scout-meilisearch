@@ -28,7 +28,9 @@ class MeilisearchEngine extends Engine implements UpdatesIndexSettings
      * Create a new engine instance.
      * @param mixed $softDelete
      */
-    public function __construct(protected MeilisearchClient $meilisearch, protected $softDelete = false) {}
+    public function __construct(protected MeilisearchClient $meilisearch, protected $softDelete = false)
+    {
+    }
 
     /**
      * Dynamically call the Meilisearch client instance.
@@ -65,12 +67,12 @@ class MeilisearchEngine extends Engine implements UpdatesIndexSettings
             return array_merge(
                 $searchableData,
                 $model->scoutMetadata(),
-                [$model->getKeyName() => (string) $model->getScoutKey()],
+                [$model->getScoutKeyName() => (string)$model->getScoutKey()],
             );
         })->filter()->values()->all();
 
         if (!empty($objects)) {
-            $index->addDocuments($objects, $models->first()->getKeyName());
+            $index->addDocuments($objects, $models->first()->getScoutKeyName());
         }
     }
 
@@ -127,7 +129,7 @@ class MeilisearchEngine extends Engine implements UpdatesIndexSettings
 
         $hits = collect($results['hits']);
 
-        $key = key((array) $hits->first());
+        $key = key((array)$hits->first());
 
         return $hits->pluck($key)->values();
     }
@@ -138,11 +140,11 @@ class MeilisearchEngine extends Engine implements UpdatesIndexSettings
      */
     public function map(Builder $builder, $results, Model $model): Collection
     {
-        if (is_null($results) || count($results['hits']) === 0) {
+        if (is_null($results) || $this->getTotalCount($results) === 0) {
             return $model->newCollection();
         }
 
-        $objectIds = collect($results['hits'])->pluck($model->getKeyName())->values()->all();
+        $objectIds = collect($results['hits'])->pluck($model->getScoutKeyName())->values()->all();
 
         $objectIdPositions = array_flip($objectIds);
 
@@ -255,7 +257,7 @@ class MeilisearchEngine extends Engine implements UpdatesIndexSettings
 
         if (array_key_exists('attributesToRetrieve', $searchParams)) {
             $searchParams['attributesToRetrieve'] = array_merge(
-                [$builder->model->getKeyName()],
+                [$builder->model->getScoutKeyName()],
                 $searchParams['attributesToRetrieve'],
             );
         }

@@ -3,23 +3,27 @@ English | [中文](./README-CN.md)
 [TOC]
 
 # Introduction
-This extension package provides Meilisearch integration similar to Laravel Scout for the Hyperf framework, supporting document indexing, searching, batch updates, and batch synchronization of index settings, etc.
 
-- Supports custom index names
-- Supports batch adding/updating/deleting documents
-- Supports batch synchronization of index settings
+This extension package provides a Meilisearch integration for the Hyperf framework similar to Laravel Scout. It supports document indexing, searching, batch updates, and batch synchronization of index settings.
 
-# Environment Requirements
-- PHP >= 8.1
-- Hyperf >= 3.1
+* Supports custom index names
+* Supports batch add/update/delete documents
+* Supports batch synchronization of index settings
+
+# Requirements
+
+* PHP >= 8.1
+* Hyperf >= 3.1
 
 # Installation
+
 ```shell
 composer require liangguifeng/hyperf-scout-meilisearch
 ```
 
 # Configuration
-## Add configurations in `config/autoload/scout.php`:
+
+## Add configuration in `config/autoload/scout.php`:
 
 ```php
 use Hyperf\Scout\Provider\MeilisearchProvider;
@@ -47,9 +51,9 @@ return [
             'key' => env('MEILISEARCH_KEY', null), // Your Meilisearch key
             'index-settings' => [
                 Article::class => [
-                    'filterableAttributes' => ['id', 'type', 'created_at'], // Filterable fields (custom)
-                    'sortableAttributes' => ['id', 'sort', 'created_at'],   // Sortable fields (custom)
-//                    'searchableAttributes' => [], // Searchable fields (all fields are searchable by default; configure if you need to specify)
+                    'filterableAttributes' => ['id', 'type', 'created_at'], // Filterable fields (customizable)
+                    'sortableAttributes' => ['id', 'sort', 'created_at'],   // Sortable fields (customizable)
+//                    'searchableAttributes' => [], // Searchable fields (all fields by default, configure if needed)
                 ],
             ]
         ],
@@ -57,51 +61,153 @@ return [
 ];
 ```
 
-## Add in the `.env` file
+## Add to `.env`
+
 ```shell
 SCOUT_ENGINE=meilisearch
 MEILISEARCH_HOST=http://127.0.0.1:7700
 MEILISEARCH_KEY=xxxxxxxxxxxxxxxxx
 ```
 
+## Add `Scout` configuration in `Model`
+
+```php
+<?php
+
+namespace App\Model;
+
+use Hyperf\Scout\Searchable;
+
+class Article extends Model
+{
+    use Searchable;
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'articles';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Get the key name used to index the model.
+     *
+     * @return mixed
+     */
+    public function getScoutKeyName()
+    {
+        return $this->getKeyName();
+    }
+}
+```
+
+**Notes**
+The `getScoutKeyName` method must be added, because the default `getScoutKeyName` method in Hyperf is as follows:
+
+```php
+// \Hyperf\Database\Model\Model::getQualifiedKeyName
+
+/**
+ * Get the Scout index name used for the model.
+ *
+ * @return mixed
+ */
+public function getScoutKeyName()
+{
+    return $this->getQualifiedKeyName();
+}
+
+// \Hyperf\Database\Model\Model::getQualifiedKeyName
+/**
+ * Get the fully qualified index field name.
+ *
+ * @return string
+ */
+public function getQualifiedKeyName()
+{
+    return $this->qualifyColumn($this->getKeyName());
+}
+
+// \Hyperf\Database\Model\Model::qualifyColumn
+/**
+ * Qualify the given column name by the model's table.
+ *
+ * @param string $column
+ * @return string
+ */
+public function qualifyColumn($column)
+{
+    if (Str::contains($column, '.')) {
+        return $column;
+    }
+
+    return $this->getTable() . '.' . $column;
+}
+```
+
+However, `meilisearch` does not support using a dot (`.`) as a primary key field. Please modify the `getScoutKeyName` method accordingly.
+
 # Usage
-## Synchronize search model content
+
+## Import model data into the index
+
 ```shell
 php bin/hyperf.php scout:import "App\Model\CrawleSanyaService"
 ```
 
-## Delete search model content
+## Flush model data from the index
+
 ```shell
 php bin/hyperf.php scout:flush "App\Model\CrawleSanyaService"
 ```
 
 ## Create an index
+
 ```shell
 php bin/hyperf.php meilisearch:index {name : The name of the index} {--k|key= : The name of the primary key}'
 ```
 
 ## Delete an index
+
 ```shell
 php bin/hyperf.php meilisearch:delete-index {name : The name of the index}
 ```
 
 ## Synchronize index settings
+
 ```shell
 php bin/hyperf.php meilisearch:sync-index-settings {name : The name of the index} {--k|key= : The name of the primary key}'
 ```
 
-## Other usages
-Please refer to the official Hyperf Scout documentation: [https://hyperf.wiki/3.1/#/en/scout](https://hyperf.wiki/3.1/#/en/scout)
+## For detailed `Scout` usage
+
+Please refer to the official Hyperf Scout documentation: [https://hyperf.wiki/3.1/#/zh-cn/scout](https://hyperf.wiki/3.1/#/zh-cn/scout)
 
 # Notes
-- The primary key must be a string to avoid loss of precision for large integers
-- The primary key of an index can only be set once
-- Do not use a dot (.) as a primary key field when adding documents
 
-# Project supported by JetBrains
+* The primary key must be a string to avoid precision loss with large integers
+* The primary key of an index can only be set once
+* Do not use a dot (`.`) in primary key fields when adding documents
+
+# JetBrains Supported Project
+
 Many thanks to JetBrains for providing me with a license to work on this and other open-source projects.
 
 [![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/overtrue)
 
 # License
+
 MIT

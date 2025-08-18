@@ -63,7 +63,94 @@ SCOUT_ENGINE=meilisearch
 MEILISEARCH_HOST=http://127.0.0.1:7700
 MEILISEARCH_KEY=xxxxxxxxxxxxxxxxx
 ```
+## 在 `Model` 中增加 `Scout` 配置
+```php
+<?php
 
+namespace App\Model;
+
+use Hyperf\Scout\Searchable;
+
+class Article extends Model
+{
+    use Searchable;
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'articles';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Get the key name used to index the model.
+     *
+     * @return mixed
+     */
+    public function getScoutKeyName()
+    {
+        return $this->getKeyName();
+    }
+}
+```
+
+**注意事项**
+`getScoutKeyName` 方法一定要添加，因为 hyperf 默认的 `getScoutKeyName` 方法如下：
+```php
+// \Hyperf\Database\Model\Model::getQualifiedKeyName
+
+/**
+ * 获取用于索引模型的 Scout 索引名称.
+ *
+ * @return mixed
+ */
+public function getScoutKeyName()
+{
+    return $this->getQualifiedKeyName();
+}
+
+// \Hyperf\Database\Model\Model::getQualifiedKeyName
+/**
+ * 获取标准的索引字段名称
+ *
+ * @return string
+ */
+public function getQualifiedKeyName()
+{
+    return $this->qualifyColumn($this->getKeyName());
+}
+
+// \Hyperf\Database\Model\Model::qualifyColumn
+/**
+ * 通过模型的表名设置给定的列名.
+ *
+ * @param string $column
+ * @return string
+ */
+public function qualifyColumn($column)
+{
+    if (Str::contains($column, '.')) {
+        return $column;
+    }
+
+    return $this->getTable() . '.' . $column;
+}
+```
+而 `meilisearch` 不支持适用点号（`.`）作为主键字段，请自行修改 `getScoutKeyName` 方法。
+ 
 # 使用
 ## 同步搜索模型内容
 ```shell
@@ -90,7 +177,7 @@ php bin/hyperf.php meilisearch:delete-index {name : The name of the index}
 php bin/hyperf.php meilisearch:sync-index-settings {name : The name of the index} {--k|key= : The name of the primary key}'
 ```
 
-## 其他使用
+## 具体 `Scout` 使用
 请参考 hyperf scout 官方文档：[https://hyperf.wiki/3.1/#/zh-cn/scout](https://hyperf.wiki/3.1/#/zh-cn/scout)
 
 # 注意事项
