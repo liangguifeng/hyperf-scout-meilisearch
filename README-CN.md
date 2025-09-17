@@ -188,7 +188,7 @@ php bin/hyperf.php meilisearch:sync-index-settings {name : The name of the index
 # 由 JetBrains 支持的项目
 非常感谢 JetBrains 向我提供了执照，可以从事该项目和其他开源项目。
 
-[![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/overtrue)
+[![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/liangguifeng)
 
 # License
 MIT
