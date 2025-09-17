@@ -206,7 +206,7 @@ Please refer to the official Hyperf Scout documentation: [https://hyperf.wiki/3.
 
 Many thanks to JetBrains for providing me with a license to work on this and other open-source projects.
 
-[![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/overtrue)
+[![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/liangguifeng)
 
 # License
 
